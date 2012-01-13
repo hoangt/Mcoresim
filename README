@@ -1,1 +1,23 @@
 An in-development version of the mcoresim.
+
+
+
+IMPORTANT
+____________
+
+
+
+Please do not check in the compiled binaries or the Makefile and the output folders. 
+These are things that will be created based on the install of the OMNET++ that 
+the user is running. 
+
+
+ideally, after changing or adding new features and after testing them,
+at the top level run a 'make clean' followed by removing the Makefile
+and the 'out' folder at the top level. These are created everytime
+'opp_makemake -f --deep' is run to compile the executeable binary. 
+
+Alternatively there is a .sh script in the top level that does all
+of the abovementioned steps. Run that script before doing a 'git add'
+and/or 'git commit'. Compiled binaries and libraries and object files
+will just add to mess up thing as and when OMNET++ improves and changes.

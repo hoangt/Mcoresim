@@ -1,4 +1,5 @@
 #include "cache.h"
+#include "defs.h"
 
 Cache::~Cache()
 {
@@ -22,7 +23,7 @@ void Cache::initialize()
   cache_size = par("cache_size"); //note: this indicates the number of lines in the cache
   cache_line_size = par("cache_line_size"); //this indicates the number of bytes per line
 
-  delay = (double) (1.0/par("clock_rate"));
+  delay = 1.0/ ((double)par("clock_rate"));
 
   fromProc = gate("fromProc");
   toProc = gate("toProc");
@@ -77,11 +78,11 @@ void Cache::handleMessage(cMessage *msg)
     CAST_MSG(access,msg,MemoryAccess);
     int address =  access->getAddress();
     if(IS_CACHE_HIT(address)){
-      if(access->getAccessType() == READ)
+      if(access->getAccess_type() == READ)
       {
        // 
       }
-      if(access->getAccessType() == WRITE)
+      if(access->getAccess_type() == WRITE)
       {
 
       }

@@ -12,6 +12,7 @@ class Cache : public cSimpleModule
   protected:
     virtual void initialize();
     virtual void handleMessage(cMessage *msg);
+    ~Cache();
 
     int tile_id;
     int cache_size;
@@ -23,6 +24,9 @@ class Cache : public cSimpleModule
     int  *age;   //age of the lines
     int  *tags; //the tags
 
+    int num_drop_bits;
+    int num_line_bits;
+    int tag_check_mask;
 
     cGate* fromProc;
     cGate* toProc;
@@ -35,6 +39,9 @@ class Cache : public cSimpleModule
 
     cGate* mmu_control_in;
     cGate* mmu_control_out;
+
+    private:
+      bool IS_CACHE_HIT(int address);
 
 };
 #endif
