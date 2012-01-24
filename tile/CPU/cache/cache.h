@@ -5,6 +5,10 @@
 #include <control_m.h>
 #include <cache_m.h>
 
+#define CACHE_STATE_FREE
+#define CACHE_STATE_READ_CYCLE
+#define CACHE_STATE_FLUSH_CYCLE
+
 class Cache : public cSimpleModule
 {
   public:
@@ -40,8 +44,28 @@ class Cache : public cSimpleModule
     cGate* mmu_control_in;
     cGate* mmu_control_out;
 
-    private:
-      bool IS_CACHE_HIT(int address);
+  private:
+
+    //private methods
+    int handle_read_hit(MemoryAccess *access);
+    int handle_write_hit(MemoryAccess *access);
+    int handle_read_miss(MemoryAccess *access);
+    int handle_write_miss(MemoryAccess *access);
+    
+    void lockCache();
+    void unlockCache();
+    bool isCacheLocked();
+    
+    bool IS_CACHE_HIT(int address);
+    bool isLineDirty(int address);
+
+    void flush_line(int start_address);
+    void generate_reads(int start_address);
+
+    //private variables
+    bool lock;
+    int cache_state;
+    bool read_cycle_pending;
 
 };
 #endif

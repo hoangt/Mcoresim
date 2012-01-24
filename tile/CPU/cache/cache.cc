@@ -80,24 +80,105 @@ void Cache::handleMessage(cMessage *msg)
     if(IS_CACHE_HIT(address)){
       if(access->getAccess_type() == READ)
       {
-       // 
+        handle_read_hit(access); 
       }
       if(access->getAccess_type() == WRITE)
       {
-
+        handle_write_hit(access);
       }
     }
-
+    else{
+      if(access->getAccess_type() == READ)
+      {
+        handle_read_miss(access);
+      }
+      if(access->getAccess_type() == WRITE)
+      {
+        handle_write_miss(access);
+      }
+    }
   }
   if(INCOMING_GATE(msg,fromMMU)){
+    if(isCacheLocked()){
+
+    }
+    else{
+      //would I ever see something coming from the 
+      //MMU if I am not refreshing or trying to
+      //populate the cache???
+    }
   }
+}
+
+int Cache::handle_read_hit(MemoryAccess *access)
+{
+  //we have what we need in the cache. TODO: partial hits???
+  //get it from the cache and then age the lines
+  //send it back to the processor
+  return 0;
+}
+
+int Cache::handle_write_hit(MemoryAccess *access)
+{
+  //we have the address we are modifying in the cache. TODO: partial hits???
+  //modify the data in the cache. 
+  //mark the line dirty and then age the lines.
+  return 0;
+}
+
+int Cache::handle_read_miss(MemoryAccess *access)
+{
+  //we do not have the address we need in the cache.
+  //lock the cache.
+  //set the pending read_miss and save the address to be read.
+  //locate a line that can accomodate this and flush it if needed.
+  //generate reads
+  //when the reads are done, unset the pending read_miss, unlock the cache and return val
+  return 0;
+}
+
+int Cache::handle_write_miss(MemoryAccess *access)
+{
+  //we do not have the address we need in the cache.
+  //lock the cache. 
+  //set the pending_write_miss and cache the address and the value
+  //locate a line that can accomodate this and flush it if needed.
+  //generate the reads
+  //when the reads are done, modify the value, unset the pending_write_miss, unlock cache
+  return 0;
+}
+
+void Cache::lockCache()
+{
+  lock = true;
+  return;
+}
+
+void Cache::unlockCache()
+{
+  lock = false;
+  return;
+}
+
+bool Cache::isCacheLocked()
+{
+  return lock;
 }
 
 bool Cache::IS_CACHE_HIT(int address)
 {
-  if(tags[((address>>num_drop_bits)&(tag_check_mask))] == address){
-    return true;
-  }
   return false;
 }
 
+bool Cache::isLineDirty(int address)
+{
+  return false;
+}
+
+void Cache::generate_reads(int start_address)
+{
+}
+
+void Cache::flush_line(int start_address)
+{
+}
