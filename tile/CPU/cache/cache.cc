@@ -1,6 +1,6 @@
 #include "cache.h"
 #include "defs.h"
-
+#include "cache_m.h"
 Cache::~Cache()
 {
   if(clines){
@@ -106,6 +106,8 @@ void Cache::handleMessage(cMessage *msg)
       //would I ever see something coming from the 
       //MMU if I am not refreshing or trying to
       //populate the cache???
+      //What I mean to say is that the MMU only
+      //responds to requests from the cache.
     }
   }
 }
