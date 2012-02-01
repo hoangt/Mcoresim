@@ -25,6 +25,7 @@ packet MemoryAccess
   int value;
   int size;
   bool isRemote;
+  bool isAck;
 }
 
 enum MemoryAccessType

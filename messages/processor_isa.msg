@@ -23,6 +23,7 @@ packet Instruction
   short op_type2 enum (OP_TYPE);
   int operand3;
   short op_type3 enum (OP_TYPE);
+  bool isAck;
 }
 
 enum OP_CODE
