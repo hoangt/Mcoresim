@@ -78,21 +78,21 @@ void Cache::handleMessage(cMessage *msg)
     CAST_MSG(access,msg,MemoryAccess);
     int address =  access->getAddress();
     if(IS_CACHE_HIT(address)){
-      if(access->getAccess_type() == READ)
+      if(access->getAccess_type() == READ_M)
       {
         handle_read_hit(access); 
       }
-      if(access->getAccess_type() == WRITE)
+      if(access->getAccess_type() == WRITE_M)
       {
         handle_write_hit(access);
       }
     }
     else{
-      if(access->getAccess_type() == READ)
+      if(access->getAccess_type() == READ_M)
       {
         handle_read_miss(access);
       }
-      if(access->getAccess_type() == WRITE)
+      if(access->getAccess_type() == WRITE_M)
       {
         handle_write_miss(access);
       }

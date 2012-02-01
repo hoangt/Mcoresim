@@ -29,8 +29,8 @@ packet MemoryAccess
 
 enum MemoryAccessType
 {
-  READ = 0;
-  WRITE = 1;
-  TEST_AND_SET = 2;
+  READ_M = 0;
+  WRITE_M = 1;
+  TEST_AND_SET_M = 2;
 }
 

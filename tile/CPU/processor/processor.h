@@ -4,6 +4,7 @@
 #include<omnetpp.h>
 #include "control_m.h"
 #include "processor_isa_m.h"
+#include "cache_m.h"
 
 
 class Processor : public cSimpleModule
@@ -28,6 +29,12 @@ class Processor : public cSimpleModule
 
     cGate* cache_control_in;
     cGate* cache_control_out;
+
+  private:
+
+    void stall_application();
+    void buffer_request(Instruction *inst);
+    void translate_to_cache_instruction(Instruction *inst, MemoryAccess *access);
 };
 
 #endif

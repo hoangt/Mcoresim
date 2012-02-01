@@ -100,7 +100,7 @@ void Memory::handleMessage(cMessage *msg)
         return;
       }
     }
-    if(access->getAccess_type() == READ){
+    if(access->getAccess_type() == READ_M){
       for(b_ctr=0;b_ctr<a_size;b_ctr++){
         byte = the_memory[address+b_ctr];
         r_value = (r_value<<8) | byte;
@@ -109,7 +109,7 @@ void Memory::handleMessage(cMessage *msg)
       sendDelayed(access,delay,toMMU);
       return;
     }
-    if(access->getAccess_type() == WRITE){
+    if(access->getAccess_type() == WRITE_M){
       //this is slightly dirty way of doing things
       //but i am too irritated to do it the clean 
       //way.
