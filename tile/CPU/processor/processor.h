@@ -34,7 +34,10 @@ class Processor : public cSimpleModule
 
     void stall_application();
     void buffer_request(Instruction *inst);
-    void translate_to_cache_instruction(Instruction *inst, MemoryAccess *access);
+
+    int counter;
+    int buffered_counter;
+    Instruction* buffered_inst;
 };
 
 #endif
