@@ -17,6 +17,7 @@ simple Cache
     int cache_size;
     int cache_line_size;
     double clock_rate;
+    bool cache_enable;
 
   gates:
     input fromProc;

@@ -22,6 +22,7 @@ class Cache : public cSimpleModule
     int cache_size;
     int cache_line_size;
     simtime_t delay;
+    bool cache_enable;
 
     char **clines; //the cache itself
     char *flags; //flags for the cache

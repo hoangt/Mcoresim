@@ -25,6 +25,8 @@ void Cache::initialize()
 
   delay = 1.0/ ((double)par("clock_rate"));
 
+  cache_enable = par("cache_enable");
+
   fromProc = gate("fromProc");
   toProc = gate("toProc");
 
@@ -33,32 +35,42 @@ void Cache::initialize()
 
   processor_control_in = gateHalf("processor_control",cGate::INPUT);
   processor_control_out = gateHalf("processor_control",cGate::OUTPUT);
-  
+
   mmu_control_in = gateHalf("mmu_control",cGate::INPUT);
   mmu_control_out = gateHalf("mmu_control",cGate::OUTPUT);
 
   //the cache is written thus - clines is an cache_size array of pointers
   //to char buffers that are cache_line_size long.
 
-  //TODO: handle cases of failure.
-  clines = (char**)malloc(sizeof(char*)*cache_size);
-  int i;
-  for(i=0;i<cache_size;i++){
-    clines[i] = (char*)malloc(sizeof(char)*cache_line_size);
-    memset((void*)clines[i],0,sizeof(char)*cache_line_size);
-  }
-  flags = (char*)malloc(sizeof(char) * cache_size);
-  memset((void*)flags,0,sizeof(char)*cache_size);
-  age = (int*)malloc(sizeof(int) * cache_size);
-  memset((void*)age,0,sizeof(int)*cache_size);
-  tags = (int*)malloc(sizeof(int) * cache_size);
-  memset((void*)tags,0,sizeof(int)*cache_size);
-
-  //calculate the shifts and bit positions etc 
-  //TODO:later
+  clines = NULL;
+  flags = NULL;
+  age = NULL;
+  tags = NULL;
   num_drop_bits = 0;
   num_line_bits = 0;
   tag_check_mask = 0x0;
+
+  if(cache_enable){
+    //TODO: handle cases of failure.
+    clines = (char**)malloc(sizeof(char*)*cache_size);
+    int i;
+    for(i=0;i<cache_size;i++){
+      clines[i] = (char*)malloc(sizeof(char)*cache_line_size);
+      memset((void*)clines[i],0,sizeof(char)*cache_line_size);
+    }
+    flags = (char*)malloc(sizeof(char) * cache_size);
+    memset((void*)flags,0,sizeof(char)*cache_size);
+    age = (int*)malloc(sizeof(int) * cache_size);
+    memset((void*)age,0,sizeof(int)*cache_size);
+    tags = (int*)malloc(sizeof(int) * cache_size);
+    memset((void*)tags,0,sizeof(int)*cache_size);
+
+    //calculate the shifts and bit positions etc 
+    //TODO:later
+    num_drop_bits = 0;
+    num_line_bits = 0;
+    tag_check_mask = 0x0;
+  }
 
   return;
 }
@@ -75,39 +87,49 @@ void Cache::initialize()
 void Cache::handleMessage(cMessage *msg)
 {
   if(INCOMING_GATE(msg,fromProc)){
-    CAST_MSG(access,msg,MemoryAccess);
-    int address =  access->getAddress();
-    if(IS_CACHE_HIT(address)){
-      if(access->getAccess_type() == READ_M)
-      {
-        handle_read_hit(access); 
+    if(cache_enable){
+      CAST_MSG(access,msg,MemoryAccess);
+      int address =  access->getAddress();
+      if(IS_CACHE_HIT(address)){
+        if(access->getAccess_type() == READ_M)
+        {
+          handle_read_hit(access); 
+        }
+        if(access->getAccess_type() == WRITE_M)
+        {
+          handle_write_hit(access);
+        }
       }
-      if(access->getAccess_type() == WRITE_M)
-      {
-        handle_write_hit(access);
+      else{
+        if(access->getAccess_type() == READ_M)
+        {
+          handle_read_miss(access);
+        }
+        if(access->getAccess_type() == WRITE_M)
+        {
+          handle_write_miss(access);
+        }
       }
     }
     else{
-      if(access->getAccess_type() == READ_M)
-      {
-        handle_read_miss(access);
-      }
-      if(access->getAccess_type() == WRITE_M)
-      {
-        handle_write_miss(access);
-      }
+      send(msg,toMMU);
     }
   }
   if(INCOMING_GATE(msg,fromMMU)){
-    if(isCacheLocked()){
+    if(cache_enable){
+      if(isCacheLocked()){
 
+      }
+      else{
+        //would I ever see something coming from the 
+        //MMU if I am not refreshing or trying to
+        //populate the cache???
+        //What I mean to say is that the MMU only
+        //responds to requests from the cache.
+      }
     }
     else{
-      //would I ever see something coming from the 
-      //MMU if I am not refreshing or trying to
-      //populate the cache???
-      //What I mean to say is that the MMU only
-      //responds to requests from the cache.
+      send(msg,toProc);
     }
   }
 }
