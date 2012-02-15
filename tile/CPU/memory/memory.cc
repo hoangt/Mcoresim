@@ -141,7 +141,7 @@ void Memory::handleMessage(cMessage *msg)
     //    then set it to 0x01 and return a 1 in the response
     // 2. if the location is non zero then do nothing and return
     //    0 in the respone. 
-    if(access-getAccess_type() == TEST_AND_SET_M){
+    if(access->getAccess_type() == TEST_AND_SET_M){
       if(the_mem[address] == 0x00){
         the_mem[address] = 0x01;
         access->setIsAck(true);
