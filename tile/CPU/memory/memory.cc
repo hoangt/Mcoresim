@@ -22,6 +22,7 @@ void Memory::initialize()
   x_tile = par("x_tile");
   y_tile = par("y_tile");
 
+  //calculate the coords of this memory tile.
   x_coord = tile_id % x_tile;
   y_coord = (int)(tile_id / 5);
    
@@ -106,7 +107,8 @@ void Memory::handleMessage(cMessage *msg)
         r_value = (r_value<<8) | byte;
       }
       access->setValue(r_value);
-      sendDelayed(access,delay,toMMU);
+      //this is to acknowledge that this read is done.
+      access->setIsAck(true);
       return;
     }
     if(access->getAccess_type() == WRITE_M){
@@ -129,10 +131,29 @@ void Memory::handleMessage(cMessage *msg)
           the_mem[address] = byte;
           break;
       }
-      delete msg;
+      //this is to acknowledge that this write is done.
+      access->setIsAck(true);
       return;
     }
-    //TODO:handle TEST_AND_SET
+
+    //The test and set semantics are as follows
+    // 1. if the location to be modified is 0x00
+    //    then set it to 0x01 and return a 1 in the response
+    // 2. if the location is non zero then do nothing and return
+    //    0 in the respone. 
+    if(access-getAccess_type() == TEST_AND_SET_M){
+      if(the_mem[address] == 0x00){
+        the_mem[address] = 0x01;
+        access->setIsAck(true);
+        access->setValue(1);
+      }
+      else{
+        access->setIsAck(true);
+        access->setValue(0);
+      }
+    }
+    //this is the response from memory - read or an ack or test and set response. 
+    sendDelayed(access,delay,toMMU);
   }
   return;
 }
