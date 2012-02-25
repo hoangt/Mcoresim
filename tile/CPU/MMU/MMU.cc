@@ -70,6 +70,10 @@ void MMU::handleMessage(cMessage *msg)
     if(access_response->getIsRemote()){
       //figure out how to handle this later.
       //TODO:later
+      //the idea is that this a response to a request
+      //for access from somewhere else on the chip.
+      //this must be retranslated back into a network
+      // packet and sent out through the NI.
     }
     else{
       //this access was triggered by the local 
@@ -81,17 +85,29 @@ void MMU::handleMessage(cMessage *msg)
     CAST_MSG(access,msg,MemoryAccess);
     int address = access->getAddress();
     if((IS_ADDRESS_LOCAL(address))||(IS_ADDRESS_OFF_CHIP_HERE(address))){
-      sendDelayed(msg,delay,toCache);
+      sendDelayed(msg,delay,toLocalMem);
     }
     else{
       //this is an access to some remote
       //memory location from the local 
       //cache.
       //TODO:later
+      //the idea is that this a request
+      //for access to memroy somewhere else on the chip.
+      //this must be translated into a network 
+      // packet and sent out to the NI.
     }
   }
   if(INCOMING_GATE(msg,fromNI)){
     //TODO:later
+    //the idea is that this a request
+    //for access from somewhere else on the chip.
+    //this must be translated into a local memory access
+    // packet and sent out to the local memory.
+
+    //the other thing that this can be is an interrupt that has been
+    //sent to this core from someother core. in which case feed it directly to 
+    //the processor. 
   }
 }
 

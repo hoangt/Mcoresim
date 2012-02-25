@@ -64,6 +64,11 @@ module CPU
       off_chip_clock_rate = ram_clock_rate;
     }
 
+    ni:netif{
+      tile_id = tile_id;
+      clock_rate = netif_clock_rate;
+    }
+
   connections allowunconnected:
 
     //data path connections first.
@@ -79,8 +84,11 @@ module CPU
     lmb.fromMMU <-- mmu.toLocalMem;
     mmu.fromLocalMem <-- lmb.toMMU;
 
-    mmu.fromNI <-- cpu_in;
-    cpu_out <-- mmu.toNI;
+    mmu.fromNI <-- ni.toMMU;
+    ni.fromMMU <-- mmu.toNI;
+
+    ni.fromRouter <-- cpu_in;
+    cpu_out <-- ni.toRouter;
 
 
     //control connections
@@ -89,7 +97,9 @@ module CPU
     cache.mmu_control <--> mmu.cache_control;
     mmu.local_mem_control <--> lmb.mmu_control;
 
-    mmu.NI_control <--> network_control;
+    mmu.NI_control <--> ni.MMU_control;
+
+    ni.router_control <--> network_control;
     
 
 }
