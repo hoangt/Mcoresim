@@ -6,7 +6,6 @@
 #include "processor_isa_m.h"
 #include "cache_m.h"
 
-
 class Processor : public cSimpleModule
 {
   public:
