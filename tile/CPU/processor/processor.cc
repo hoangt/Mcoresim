@@ -1,6 +1,8 @@
 #include "processor.h"
 #include "defs.h"
 
+#include "control_defs.h"
+
 void Processor::initialize()
 {
 
@@ -37,7 +39,8 @@ void Processor::handleMessage(cMessage *msg)
       case READ:
         access->setAccess_type(READ_M);
         access->setAddress(inst->getOperand1());
-        access->setSize(inst->getOp_type1()); 
+        access->setSize(inst->getOp_type1());
+        stall_application(); 
         break;
       case WRITE:
         //I am not sure if it makes sense to do this.
@@ -51,7 +54,8 @@ void Processor::handleMessage(cMessage *msg)
       case TEST_AND_SET:
         access->setAccess_type(TEST_AND_SET_M);
         access->setAddress(inst->getOperand1());
-        access->setSize(inst->getOp_type1()); 
+        access->setSize(inst->getOp_type1());
+        stall_application(); 
         break;
       default:
         //error - illegal instruction or not yet supported.
@@ -75,6 +79,7 @@ void Processor::handleMessage(cMessage *msg)
           //access should just be copied to the operand1 location. 
           //NOTE this is a hack for now, but hell, this is just a 
           //simulator.
+          unstall_application();
           send(buffered_inst,toApp);
           break;
         case WRITE_M:
@@ -102,6 +107,18 @@ void Processor::stall_application()
   //because how does one really acknowledge a write to the application from
   //the processor. Seems a silly thing. I will come back to this once I get
   //the remainder of the stuff at the bottom working.
+  ControlMessage *cntl = new ControlMessage();
+  cntl->setResponse_code(APP_PROCESSOR_STATE_BLOCKED);
+  send(cntl,app_control_out);
+  return;
+}
+
+void Processor::unstall_application()
+{
+  ControlMessage *cntl = new ControlMessage();
+  cntl->setResponse_code(APP_PROCESSOR_STATE_RUN);
+  send(cntl,app_control_out);
+  return;
 }
 
 void Processor::buffer_request(Instruction *inst)

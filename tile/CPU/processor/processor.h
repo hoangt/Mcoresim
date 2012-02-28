@@ -32,6 +32,7 @@ class Processor : public cSimpleModule
   private:
 
     void stall_application();
+    void unstall_application();
     void buffer_request(Instruction *inst);
 
     int counter;
