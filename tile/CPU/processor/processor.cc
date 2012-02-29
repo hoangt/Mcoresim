@@ -31,7 +31,6 @@ void Processor::handleMessage(cMessage *msg)
     //decode instruction
     CAST_MSG(inst,msg,Instruction);
     MemoryAccess *access = new MemoryAccess();
-    stall_application();
     counter++;
     access->setCounter(counter);
     buffer_request(inst);
@@ -40,7 +39,7 @@ void Processor::handleMessage(cMessage *msg)
         access->setAccess_type(READ_M);
         access->setAddress(inst->getOperand1());
         access->setSize(inst->getOp_type1());
-        stall_application(); 
+        stall_application();
         break;
       case WRITE:
         //I am not sure if it makes sense to do this.
