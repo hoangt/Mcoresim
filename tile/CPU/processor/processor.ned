@@ -1,4 +1,4 @@
-/************************************************
+//************************************************
 //NED for processor.
 //
 //The processor is the processor(duh!) that does 
@@ -6,7 +6,7 @@
 //the program. 
 //************************************************/
 
-package mcoresim.tile.CPU.processor;
+package tile.CPU.processor;
 
 
 simple Processor

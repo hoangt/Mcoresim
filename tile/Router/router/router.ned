@@ -1,4 +1,4 @@
-/************************************************
+//************************************************
 //NED for router.
 //
 //the router is the element that is responsible for
@@ -6,7 +6,7 @@
 //from tile to tile. 
 //************************************************/
 
-package mcoresim.tile.Router.router;
+package tile.Router.router;
 
 
 simple Router

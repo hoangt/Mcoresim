@@ -10,7 +10,7 @@
 //on this tile.
 //************************************************/
 
-package mcoresim.tile.CPU.MMU;
+package tile.CPU.MMU;
 
 simple MMU
 {

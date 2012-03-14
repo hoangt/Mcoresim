@@ -4,26 +4,31 @@
 //local memory bank.
 //
 //************************************************/
-package mcoresim.tile.CPU;
+package tile.CPU;
+import tile.CPU.application.Application;
+import tile.CPU.processor.Processor;
+import tile.CPU.cache.Cache;
+import tile.CPU.MMU.MMU;
+import tile.CPU.memory.Memory;
+import tile.CPU.netif.NetIf;
 
 module CPU
 {
   parameters:
     int tile_id;
+    int x_tile;
+    int y_tile;
 
-    double processor_clock_rate;
-    
+    double tile_frequency;
+    double ddr_frequency;
+
     int cache_size;
     int cache_line_size;
-    double cache_clock_rate;
     
-    double mmu_clock_rate;
 
     int local_memory_size;
     int ram_size;
     bool ram_enable;
-    double local_memory_clock_rate;
-    double ram_clock_rate;
     
   gates:
 
@@ -36,37 +41,45 @@ module CPU
   submodules:
     app:Application{
       tile_id = tile_id;
+      clock_rate = tile_frequency;
     }
 
     proc:Processor{
       tile_id = tile_id;
-      clock_rate = processor_clock_rate;
+      clock_rate = tile_frequency;
     }
 
-    cache:Cache{
-      tile_id = tile_id;
-      cache_size = cache_size;
-      cache_line_size = cache_line_size;
-      clock_rate = cache_clock_rate;
-    }
+    //cache:Cache{
+    //  tile_id = tile_id;
+    //  cache_size = cache_size;
+    //  cache_line_size = cache_line_size;
+    //  clock_rate = tile_frequency;
+    //}
 
     mmu:MMU{
       tile_id = tile_id;
-      clock_rate = mmu_clock_rate;
+      clock_rate = tile_frequency;
+      memory_size = local_memory_size;
+      x_tile = x_tile;
+      y_tile = y_tile;
+      off_chip_memory_enable = ram_enable;
+      off_chip_memory_size = ram_size;
     }
 
-    lmb:memory{
+    lmb:Memory{
       tile_id = tile_id;
       memory_size = local_memory_size;
       off_chip_memory_enable = ram_enable;
       off_chip_memory_size = ram_size;
-      clock_rate = local_memory_clock_rate;
-      off_chip_clock_rate = ram_clock_rate;
+      clock_rate = tile_frequency;
+      off_chip_clock_rate = ddr_frequency;
+      x_tile = x_tile;
+      y_tile = y_tile;
     }
 
-    ni:netif{
+    ni:NetIf{
       tile_id = tile_id;
-      clock_rate = netif_clock_rate;
+      clock_rate = tile_frequency;
     }
 
   connections allowunconnected:
@@ -75,11 +88,16 @@ module CPU
     app.fromProc <-- proc.toApp;
     proc.fromApp <-- app.toProc;
 
-    proc.fromCache <-- cache.toProc;
-    cache.fromProc <-- proc.toCache;
+    //Cache present connections.
+    //proc.fromCache <-- cache.toProc;
+    //cache.fromProc <-- proc.toCache;
 
-    cache.fromMMU <-- mmu.toCache;
-    mmu.fromCache <-- cache.toMMU;
+    //cache.fromMMU <-- mmu.toCache;
+    //mmu.fromCache <-- cache.toMMU;
+    
+    //Cacheless connections
+    proc.fromCache <-- mmu.toCache;
+    mmu.fromCache <-- proc.toCache;
 
     lmb.fromMMU <-- mmu.toLocalMem;
     mmu.fromLocalMem <-- lmb.toMMU;
@@ -93,13 +111,12 @@ module CPU
 
     //control connections
     app.processor_control <--> proc.app_control;
-    proc.cache_control <--> cache.processor_control;
-    cache.mmu_control <--> mmu.cache_control;
+    //proc.cache_control <--> cache.processor_control;
+    //cache.mmu_control <--> mmu.cache_control;
+    proc.cache_control <--> mmu.cache_control;
     mmu.local_mem_control <--> lmb.mmu_control;
 
     mmu.NI_control <--> ni.MMU_control;
 
     ni.router_control <--> network_control;
-    
-
 }

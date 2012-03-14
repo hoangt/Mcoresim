@@ -8,7 +8,7 @@
 //
 //************************************************/
 
-package mcoresim.tile.CPU.cache;
+package tile.CPU.cache;
 
 simple Cache
 {

@@ -1,6 +1,10 @@
 #include "cache.h"
 #include "defs.h"
 #include "cache_m.h"
+#include "frequency_scale.h"
+
+Define_Module(Cache);
+
 Cache::~Cache()
 {
   if(clines){
@@ -23,7 +27,11 @@ void Cache::initialize()
   cache_size = par("cache_size"); //note: this indicates the number of lines in the cache
   cache_line_size = par("cache_line_size"); //this indicates the number of bytes per line
 
-  delay = 1.0/ ((double)par("clock_rate"));
+#ifndef NO_DELAY
+  delay = 1.0/ ((double)par("clock_rate") * CACHE_SCALE_FACTOR);
+#else
+  delay = 0.0;
+#endif
 
   cache_enable = par("cache_enable");
 

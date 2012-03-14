@@ -3,7 +3,11 @@
 void Router::initialize()
 {
   tile_id = par("tile_id");
+#ifndef NO_DELAY
   delay = 1.0/ ((double)par("clock_rate"));
+#else
+  delay = 0.0;
+#endif
 
   fromNorth = gate("fromNorth");
   toNorth = gate("toNorth");

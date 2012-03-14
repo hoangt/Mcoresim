@@ -38,6 +38,8 @@ class Memory : public cSimpleModule
     private:
       char *the_memory;
       char *the_off_chip_memory;
+
+      void dumpMemory();
 };
 
 #endif

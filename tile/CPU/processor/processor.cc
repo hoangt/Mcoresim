@@ -2,12 +2,19 @@
 #include "defs.h"
 
 #include "control_defs.h"
+#include "frequency_scale.h"
+
+Define_Module(Processor);
 
 void Processor::initialize()
 {
 
   tile_id = par("tile_id");
-  delay = 1.0/ ((double)par("clock_rate"));
+#ifndef NO_DELAY
+  delay = 1.0/ ((double)par("clock_rate") * PROCESSOR_SCALE_FACTOR);
+#else
+  delay = 0.0;
+#endif
 
   fromApp = gate("fromApp");
   toApp = gate("toApp");
@@ -20,8 +27,9 @@ void Processor::initialize()
   
   cache_control_in = gateHalf("cache_control",cGate::INPUT);
   cache_control_out = gateHalf("cache_control",cGate::OUTPUT);
-  
+ 
   counter =0;
+  unstall_application();
   return;
 }
 
@@ -49,6 +57,7 @@ void Processor::handleMessage(cMessage *msg)
         access->setAddress(inst->getOperand1());
         access->setValue(inst->getOperand2());
         access->setSize(inst->getOp_type1()); 
+        stall_application();
         break;
       case TEST_AND_SET:
         access->setAccess_type(TEST_AND_SET_M);
@@ -78,11 +87,11 @@ void Processor::handleMessage(cMessage *msg)
           //access should just be copied to the operand1 location. 
           //NOTE this is a hack for now, but hell, this is just a 
           //simulator.
+          buffered_inst->setOperand2((char)response->getValue() & 0xff);
+        case WRITE_M:
           unstall_application();
           send(buffered_inst,toApp);
           break;
-        case WRITE_M:
-          //for write we do nothing. its already been done.
         default:
           //something that is wrong or hasn't been implemented yet.
           if(buffered_inst){

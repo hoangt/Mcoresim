@@ -1,6 +1,8 @@
 #ifndef __MCORESIM_REDUX_CUSTOM_HEADER__
 #define __MCORESIM_REDUX_CUSTOM_HEADER__
 
+#include <iostream>
+using namespace std;
 //some generic stuff with message arrivals - all use
 #define INCOMING_GATE(MSG,GATE)  (MSG->getArrivalGate() == GATE)
 #define CAST_MSG(NEW_MSG,MSG,TYPE)        TYPE* NEW_MSG = check_and_cast<TYPE*> (MSG)

@@ -3,10 +3,20 @@
 #include "network_m.h"
 #include "defs.h"
 
+#include "frequency_scale.h"
+
+
+Define_Module(NetIf);
+
 void NetIf::initialize()
 {
   tile_id = par("tile_id");
-  delay = 1.0/ ((double)par("clock_rate"));
+
+#ifndef NO_DELAY
+  delay = 1.0/ ((double)par("clock_rate") * NETIF_SCALE_FACTOR);
+#else
+  delay = 0.0;
+#endif
 
   fromMMU = gate("fromMMU");
   toMMU = gate("toMMU");

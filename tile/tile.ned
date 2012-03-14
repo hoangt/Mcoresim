@@ -1,26 +1,23 @@
-package mcoresim.tile;
+package tile;
 
 module tile
 {
 parameters:
 
   int tile_id;
+  int x_tile;
+  int y_tile;
 
-  double processor_clock_rate;
+  double tile_frequency;
+  double ddr_frequency;
+
+  double router_clock_rate;
 
   int cache_size;
   int cache_line_size;
-  double cache_clock_rate;
-
-  double mmu_clock_rate;
-
   int local_memory_size;
   int ram_size;
   bool ram_enable;
-  double local_memory_clock_rate;
-  double ram_clock_rate;
-
-  double router_clock_rate;
 
 gates:
   
@@ -42,28 +39,33 @@ gates:
 
 submodules:
 
- cpu:CPU{
+cpu:CPU{
+
    tile_id = tile_id;
-   processor_clock_rate = processor_clock_rate;
+   x_tile = x_tile;
+   y_tile = y_tile;
+
+   tile_frequency = tile_frequency;
+   ddr_frequency = ddr_frequency;
+
    cache_size = cache_size;
    cache_line_size = cache_line_size;
-   cache_clock_rate = cache_clock_rate;
-   mmu_clock_rate = mmu_clock_rate;
+
+
    local_memory_size = local_memory_size;
    ram_size = ram_size;
    ram_enable = ram_enable;
-   local_memory_clock_rate = local_memory_clock_rate;
-   ram_clock_rate = ram_clock_rate;
  }
 
- router:Router{
+router:Router{
    router_clock_rate = router_clock_rate;
  }
 
-connection allowunconnected:
+connections allowunconnected:
 
   cpu.cpu_in <-- router.toNI;
   router.fromNI <-- cpu.cpu_out;
+  router.ni_control <--> cpu.network_control;
 
   north_in <-- router.toNorth;
   router.fromNorth <-- north_out;

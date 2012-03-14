@@ -13,7 +13,7 @@
 //the way they are in normal memory. 
 //************************************************/
 
-package mcoresim.tile.CPU.memory;
+package tile.CPU.memory;
 
 simple Memory
 {
@@ -29,7 +29,7 @@ simple Memory
 
   gates:
     input fromMMU;
-    input toMMU;
+    output toMMU;
 
     inout mmu_control;
 }

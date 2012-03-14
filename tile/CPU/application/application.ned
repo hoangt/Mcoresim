@@ -9,12 +9,13 @@
 //memory of a remote tile. 
 //************************************************/
 
-package mcoresim.tile.CPU.application;
+package tile.CPU.application;
 
 simple Application
 {
   parameters:
     int tile_id;
+    double clock_rate;
     @display("i=block/app2");
 
   gates:

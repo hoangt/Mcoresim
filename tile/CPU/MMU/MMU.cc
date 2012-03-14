@@ -1,5 +1,9 @@
 #include "MMU.h"
 #include "defs.h"
+#include "frequency_scale.h"
+
+Define_Module(MMU);
+
 void MMU::initialize()
 {
   tile_id = par("tile_id");
@@ -8,13 +12,17 @@ void MMU::initialize()
   y_tile = par("y_tile");
 
   x_coord = tile_id % x_tile;
-  y_coord = (int)(tile_id / 5);
+  y_coord = (int)(tile_id / x_tile);
 
   memory_size = par("memory_size");
   off_chip_memory_size = par("off_chip_memory_size");
   off_chip_memory_enable = par("off_chip_memory_enable");
 
-  delay = 1.0/ ((double)par("clock_rate"));
+#ifndef NO_DELAY
+  delay = 1.0/ ((double)par("clock_rate") * MMU_SCALE_FACTOR);
+#else
+  delay = 0.0;
+#endif
 
   fromLocalMem = gate("fromLocalMem");
   toLocalMem = gate("toLocalMem");

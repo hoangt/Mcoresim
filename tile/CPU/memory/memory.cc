@@ -1,5 +1,9 @@
 #include "memory.h"
 #include "defs.h"
+#include "frequency_scale.h"
+
+
+Define_Module(Memory);
 
 Memory::~Memory()
 {
@@ -24,14 +28,19 @@ void Memory::initialize()
 
   //calculate the coords of this memory tile.
   x_coord = tile_id % x_tile;
-  y_coord = (int)(tile_id / 5);
+  y_coord = (int)(tile_id / y_tile);
    
   memory_size = par("memory_size");
   off_chip_memory_size = par("off_chip_memory_size");
   off_chip_memory_enable = par("off_chip_memory_enable");
 
-  delay = 1.0/ ((double)par("clock_rate"));
+#ifndef NO_DELAY
+  delay = 1.0/ ((double)par("clock_rate") * LOCAL_MEMORY_SCALE_FACTOR);
   delay_off_chip = 1.0/((double)par("off_chip_clock_rate"));
+#else
+  delay = 0.0;
+  delay_off_chip = 0.0;
+#endif
 
   fromMMU = gate("fromMMU");
   toMMU = gate("toMMU");
@@ -45,6 +54,7 @@ void Memory::initialize()
   //figure out how much memory is actually local memory.
   int local_memory_total = x_tile * y_tile * memory_size;
   local_start = tile_id * memory_size;
+  memset((void*)the_memory,0,memory_size);
 
   if(off_chip_memory_enable){
     the_off_chip_memory = (char*)malloc(sizeof(char) * off_chip_memory_size);
@@ -71,7 +81,6 @@ void Memory::initialize()
 
   }
 
-
   return;
 }
 
@@ -79,13 +88,14 @@ void Memory::handleMessage(cMessage *msg)
 {
   if(INCOMING_GATE(msg,fromMMU)){
     CAST_MSG(access,msg,MemoryAccess);
-
+  
     int address = access->getAddress();
     int b_ctr;
     int a_size = access->getSize();
     char byte;
     int r_value = 0;
     char *the_mem = NULL;
+    //cout<<"Memory::"<<__FUNCTION__<<"address = "<<address<<" access type = "<<access->getAccess_type()<<endl;
     if(IS_ADDRESS_LOCAL(address)){
       REDUCE_ON_CHIP_TO_LOCAL_ADDRESS(address);
       the_mem = the_memory;
@@ -102,38 +112,22 @@ void Memory::handleMessage(cMessage *msg)
       }
     }
     if(access->getAccess_type() == READ_M){
-      for(b_ctr=0;b_ctr<a_size;b_ctr++){
-        byte = the_memory[address+b_ctr];
-        r_value = (r_value<<8) | byte;
-      }
+      r_value = 0x00 | the_memory[address];
+      //cout<<"Memory::"<<__FUNCTION__<<" - read "<<byte<<" from "<<address<<endl;
       access->setValue(r_value);
       //this is to acknowledge that this read is done.
       access->setIsAck(true);
-      return;
     }
     if(access->getAccess_type() == WRITE_M){
       //this is slightly dirty way of doing things
       //but i am too irritated to do it the clean 
       //way.
-      switch(a_size){
-        case 1: //one byte value
-          byte = (char)(access->getValue() & 0xff);
+          byte = 0x00;
+          byte = (char)(access->getValue());
           the_mem[address] = byte;
-          break;
-        case 4: //four byte value
-          byte = (char)(access->getValue() & 0xff);
-          the_mem[address + 3] = byte;
-          byte = (char)((access->getValue()>>8) & 0xff);
-          the_mem[address + 2] = byte;
-          byte = (char)((access->getValue()>>8) & 0xff);
-          the_mem[address + 1] = byte;
-          byte = (char)((access->getValue()>>8) & 0xff);
-          the_mem[address] = byte;
-          break;
-      }
+          //cout<<"Memory::"<<__FUNCTION__<<" - wrote "<<byte<<" to "<<address<<endl;
       //this is to acknowledge that this write is done.
       access->setIsAck(true);
-      return;
     }
 
     //The test and set semantics are as follows
@@ -153,7 +147,22 @@ void Memory::handleMessage(cMessage *msg)
       }
     }
     //this is the response from memory - read or an ack or test and set response. 
+    //dumpMemory();
     sendDelayed(access,delay,toMMU);
+  }
+  return;
+}
+
+void Memory::dumpMemory()
+{
+ 
+  if(the_memory){
+    int i=0;
+    while(i < memory_size){
+      cout<<"0x"<<hex<<(int)(*(the_memory + i))<<"   ";
+      i++;
+    }
+    cout<<endl;
   }
   return;
 }

@@ -8,7 +8,7 @@
 // side and to the router on the other. 
 //////////////////////////////////////////////////////
 
-package mcoresim.tile.CPU.netif;
+package tile.CPU.netif;
 
 simple NetIf
 {
