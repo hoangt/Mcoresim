@@ -21,3 +21,15 @@ Alternatively there is a .sh script in the top level that does all
 of the abovementioned steps. Run that script before doing a 'git add'
 and/or 'git commit'. Compiled binaries and libraries and object files
 will just add to mess up thing as and when OMNET++ improves and changes.
+
+
+
+USING
+------------------
+
+
+
+The OneTile.ned is a fraud network that simulates exactly one tile
+or in other words a single CPU. Other than for showing little moving dots 
+and what not, it is more or less nothing else. 
+
